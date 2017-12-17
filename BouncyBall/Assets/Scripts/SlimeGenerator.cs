@@ -4,10 +4,9 @@ using UnityEngine;
 
 public class SlimeGenerator : MonoBehaviour {
 
-    public int LayerNumber = 3;
-    public int LayerUnitNumber = 6;
-    public float UnitScale = 0.1f;
-    public float SqueezeRatio = 2f;
+    public int OutLayerNumber = 2;
+    public int StartLayerUnitNumber = 4;
+    public float StartRadius = 0.2f;
 
     [SerializeField] GameObject SlimeUnit;
 
@@ -18,43 +17,46 @@ public class SlimeGenerator : MonoBehaviour {
 
     private void GenerateSlime() {
         GameObject centerUnit = Instantiate(SlimeUnit, transform.position, transform.rotation, transform);
-        GameObject[] lastLayerUnits = new GameObject[LayerUnitNumber];
-        GameObject[] thisLayerUnits = new GameObject[LayerUnitNumber];
-        centerUnit.transform.localScale = UnitScale * Vector3.one;
-        for (int layer = 2; layer <= LayerNumber; layer++) {
-            // radius for this layer
-            float radius = UnitScale * SqueezeRatio / 2f * layer;
-            Debug.Log(radius);
+        List<GameObject> lastLayerUnits = new List<GameObject>();
+        List<GameObject> thisLayerUnits = new List<GameObject>();
+        // initial value
+        int unitNum = StartLayerUnitNumber;
+        float radius = StartRadius;
+        for (int layer = 1; layer <= OutLayerNumber; layer++) {
             // create all units
-            for (int i = 0; i < LayerUnitNumber; i++) {
+            for (int i = 0; i < unitNum; i++) {
                 GameObject unit = Instantiate(SlimeUnit, transform);
-                unit.transform.localScale = UnitScale * Vector3.one;
-                unit.transform.localPosition = radius * GetDirByPropotion((i + layer / 2f) / LayerUnitNumber);
-
-                thisLayerUnits[i] = unit;
+                unit.transform.localPosition = radius * GetDirByPropotion(i / (float) unitNum);
+                thisLayerUnits.Add(unit);
             }
             // add joints
-            if (layer == 2) {
-                for (int i = 0; i < LayerUnitNumber; i++) {
+            if (layer == 1) {
+                for (int i = 0; i < unitNum; i++) {
+                    AddSpringJointTo(thisLayerUnits[i], thisLayerUnits[(i + 1) % unitNum]);
                     AddSpringJointTo(thisLayerUnits[i], centerUnit);
-                    AddSpringJointTo(thisLayerUnits[i], thisLayerUnits[(i + 1) % LayerUnitNumber]);
                 }
             }
-            if (layer >= 3) {
-                for (int i = 0; i < LayerUnitNumber; i++) {
-                    AddSpringJointTo(thisLayerUnits[i], lastLayerUnits[(i + 1) % LayerUnitNumber]);
-                    AddSpringJointTo(thisLayerUnits[i], lastLayerUnits[(i + 1) % LayerUnitNumber]);
-                    AddSpringJointTo(thisLayerUnits[i], thisLayerUnits[(i + 1) % LayerUnitNumber]);
+            if (layer >= 2) {
+                for (int i = 0; i < unitNum; i++) {
+                    AddSpringJointTo(thisLayerUnits[i], thisLayerUnits[(i + 1) % unitNum]);
+                    if (i % 2 == 0) {
+                        AddSpringJointTo(thisLayerUnits[i], lastLayerUnits[(i / 2) % (unitNum / 2)]);
+                    } else {
+                        AddSpringJointTo(thisLayerUnits[i], lastLayerUnits[(i + 1) / 2 % (unitNum / 2)]);
+                        AddSpringJointTo(thisLayerUnits[i], lastLayerUnits[(i - 1) / 2 % (unitNum / 2)]);
+                    }
                 }
             }
             // finish one layer
-            for (int i = 0; i < LayerUnitNumber; i++) {
-                lastLayerUnits[i] = thisLayerUnits[i];
-            }
+            lastLayerUnits.Clear();
+            lastLayerUnits.AddRange(thisLayerUnits);
+            thisLayerUnits.Clear();
+            unitNum *= 2;
+            radius += StartRadius;
         }
     }
 
-    private void AddSpringJointTo(GameObject unit, GameObject other, float strength = 30f) {
+    private void AddSpringJointTo(GameObject unit, GameObject other, float strength = 20f) {
         if (!unit || !other) {
             Debug.LogAssertion("Unit not exist");
             return;

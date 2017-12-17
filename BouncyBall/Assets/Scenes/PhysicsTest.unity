@@ -729,8 +729,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 89ad6d258402aba4f9bead309b9645c9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  LayerNumber: 3
-  LayerUnitNumber: 6
-  UnitScale: 0.2
-  SqueezeRatio: 1.5
+  OutLayerNumber: 3
+  StartLayerUnitNumber: 6
+  StartRadius: 0.15
   SlimeUnit: {fileID: 1360596040785204, guid: 8a83e477108caf74eab7cabb9dfc98a5, type: 2}
