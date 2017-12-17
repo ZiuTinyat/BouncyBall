@@ -56,7 +56,7 @@ public class SlimeGenerator : MonoBehaviour {
         }
     }
 
-    private void AddSpringJointTo(GameObject unit, GameObject other, float strength = 20f) {
+    private void AddSpringJointTo(GameObject unit, GameObject other, float strength = 5f) {
         if (!unit || !other) {
             Debug.LogAssertion("Unit not exist");
             return;
@@ -66,6 +66,7 @@ public class SlimeGenerator : MonoBehaviour {
             return;
         }
         SpringJoint2D j = unit.AddComponent<SpringJoint2D>();
+        j.autoConfigureConnectedAnchor = true;
         j.connectedBody = other.GetComponent<Rigidbody2D>();
         j.frequency = strength;
         j.autoConfigureDistance = false;
