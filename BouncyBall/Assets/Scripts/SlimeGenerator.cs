@@ -16,7 +16,7 @@ public class SlimeGenerator : MonoBehaviour {
 	}
 
     private void GenerateSlime() {
-        GameObject centerUnit = Instantiate(SlimeUnit, transform.position, transform.rotation, transform);
+        GameObject centerUnit = gameObject;// Instantiate(SlimeUnit, transform.position, transform.rotation, transform);
         List<GameObject> lastLayerUnits = new List<GameObject>();
         List<GameObject> thisLayerUnits = new List<GameObject>();
         // initial value
@@ -66,7 +66,7 @@ public class SlimeGenerator : MonoBehaviour {
             return;
         }
         SpringJoint2D j = unit.AddComponent<SpringJoint2D>();
-        j.autoConfigureConnectedAnchor = true;
+        j.autoConfigureConnectedAnchor = false;
         j.connectedBody = other.GetComponent<Rigidbody2D>();
         j.frequency = strength;
         j.autoConfigureDistance = false;
